@@ -2,6 +2,7 @@
  * Created by ZloiY on 22-Feb-17.
  * (((X&Y)&(!Z))|((X&(!Y))&Z))
  * ((((X&(!Y))&Z)|(((!X)&(!Y))&Z))|((X&(!Y))&(!Z)))
+ * (((X&(Y&(Z&W)))|(X&(Y&(Z&!W))))|(X&(Y&(!Z&W))))
 */
 function startParse(regExp) {
     let regExpStr =  regExp.toString();
@@ -14,7 +15,7 @@ function startParse(regExp) {
             console.log(regExpStr);
             let regExpWoutRverseBrackets =regExpStr.replace(/\(![A-Z]\)/g, reverseSymbolReplace);
             console.log(regExpWoutRverseBrackets);
-            let regExpWoutBinaryBrackets = regExpWoutRverseBrackets.replace(/\(([A-Z]|![A-Z])&([A-Z]|![A-Z])\)/g, binaryOperatorBracketsDel);
+            let regExpWoutBinaryBrackets = deleteSkobenchikiInSkobenchiki(regExpWoutRverseBrackets);
             console.log(regExpWoutBinaryBrackets);
             let almostComplete = findTheLastSkobenchik(regExpWoutBinaryBrackets);
             console.log(findTheFirstSkobenchik(almostComplete));
@@ -31,11 +32,6 @@ function startParse(regExp) {
 function reverseSymbolReplace(match, p1, p2, p3) {
     newSymbol=match[1]+match[2];
     return newSymbol;
-}
-
-function binaryOperatorBracketsDel(match, p1, p2, p3) {
-   newBinaryExpression=p1+"&"+p2;
-   return newBinaryExpression;
 }
 
 function findTheLastSkobenchik(regExp) {
@@ -62,4 +58,17 @@ function firstReplaceProtocol(match, p1, p2) {
     for(i=1;i<match.length;i++)
         backToNormal+=match[i];
     return backToNormal;
+}
+
+function deleteSkobenchikiInSkobenchiki(regExp) {
+    if (!regExp.match(/\(([A-Z]|![A-Z])(&[A-Z]|&![A-Z])+\)\|/g)) {
+        return deleteSkobenchikiInSkobenchiki.call(this,regExp.replace(/\(([A-Z]|![A-Z])(&[A-Z]|&![A-Z])+\)/g, binaryOperatorBracketsDel));
+    }else return regExp;
+}
+
+function binaryOperatorBracketsDel(match, p1, p2, p3) {
+    newBinaryExpression="";
+    for(i=1;i<match.length-1;i++)
+        newBinaryExpression+=match[i];
+    return newBinaryExpression;
 }
