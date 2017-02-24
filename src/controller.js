@@ -2,23 +2,41 @@
  * Created by ZloiY on 22-Feb-17.
  * (((X&Y)&(!Z))|((X&(!Y))&Z))
  * ((((X&(!Y))&Z)|(((!X)&(!Y))&Z))|((X&(!Y))&(!Z)))
- * (((X&(Y&(Z&W)))|(X&(Y&(Z&!W))))|(X&(Y&(!Z&W))))
+ * (((X&(Y&(Z&W)))|(X&(Y&(Z&(!W)))))|(X&(Y&((!Z)&W))))
+ * (((x&(Y&(Z&W)))|(X&(Y&(z&(!W)))))|(X&(Y&((!Z)&w))))
 */
 function startParse(regExp) {
     let regExpStr =  regExp.toString();
+    if (regExpStr.match(/\(|\)/g)==null) {
+        console.log("No brakets");
+        return -1;
+    }
+    if (regExp.match(/[a-z]/g)){
+        console.log("Small letters");
+        return -1;
+    }
     let allBrackets = regExpStr.match(/\(|\)/g);
     if (allBrackets.length%2==0) {
         console.log("Brackets number good");
-        let disjunctionNum = regExpStr.match(/\)\|\(/g);
-        if (disjunctionNum.length !=0) {
-            console.log("Disjunction number is " + disjunctionNum.length);
+        if (regExpStr.match(/\)\|\(/g)) {
             console.log(regExpStr);
             let regExpWoutRverseBrackets =regExpStr.replace(/\(![A-Z]\)/g, reverseSymbolReplace);
             console.log(regExpWoutRverseBrackets);
             let regExpWoutBinaryBrackets = deleteSkobenchikiInSkobenchiki(regExpWoutRverseBrackets);
             console.log(regExpWoutBinaryBrackets);
             let almostComplete = findTheLastSkobenchik(regExpWoutBinaryBrackets);
-            console.log(findTheFirstSkobenchik(almostComplete));
+            let controlReg = findTheFirstSkobenchik(almostComplete);
+            console.log(controlReg);
+            console.log(controlReg.match(/(!?[A-Z])(.+!?[A-Z])+\)\|?/g));
+            if (controlReg.match(/\((!?[A-Z])(.+!?[A-Z])+\)\|?/g) == controlReg){
+                if (controlReg.match(/(!?[A-Z])((->|\|)!?[A-Z])+/g)) {
+                    console.log("Wrong binary operation in brackets");
+                    return -1;
+                }else console.log("Expression is alright")
+            }else{
+                console.log("Wrong expression");
+                return -1;
+            }
         }
         else {
             console.log("No disjunction were found");
