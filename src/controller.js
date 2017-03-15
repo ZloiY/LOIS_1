@@ -3,36 +3,41 @@
  * (((X&Y)&(!Z))|((X&(!Y))&Z))
  * ((((X&(!Y))&Z)|(((!X)&(!Y))&Z))|((X&(!Y))&(!Z)))
  * (((X&(Y&(Z&W)))|(X&(Y&(Z&(!W)))))|(X&(Y&((!Z)&W))))
- * (((x&(Y&(Z&W)))|(X&(Y&(z&(!W)))))|(X&(Y&((!Z)&w))))
+ * (((X&(Y&(Z&W)))|(X&(Y&(Z&(!W)))))|(X&(Y&((!Z)&W))))
 */
+
+/**
+ * Функция входа.
+ */
 function startParse(regExp) {
     let regExpStr =  regExp.toString();
+    //Проверяем на наличие скобок
     if (regExpStr.match(/\(|\)/g)==null) {
-        console.log("No brakets");
-        return -1;
-    }
-    if (regExp.match(/[a-z]/g)){
-        console.log("Small letters");
+        console.log("No brackets");
         return -1;
     }
     let allBrackets = regExpStr.match(/\(|\)/g);
+    //Проверяем на наличие лишних символов
+    if (regExpStr.match(/(?!([A-Z]|&|\||\(|\)|!))./g)){
+        console.log("Wrong characters");
+        return -1;
+    }
+    //Проверяем на чётность количества скобок
     if (allBrackets.length%2==0) {
         console.log("Brackets number good");
+        //Проверяем на наличие дизъюнкции
         if (regExpStr.match(/\)\|\(/g)) {
             console.log(regExpStr);
             let regExpWoutRverseBrackets =regExpStr.replace(/\(![A-Z]\)/g, reverseSymbolReplace);
             console.log(regExpWoutRverseBrackets);
-            let regExpWoutBinaryBrackets = deleteSkobenchikiInSkobenchiki(regExpWoutRverseBrackets);
+            let regExpWoutBinaryBrackets = deleteBracketsInBrackets(regExpWoutRverseBrackets);
             console.log(regExpWoutBinaryBrackets);
-            let almostComplete = findTheLastSkobenchik(regExpWoutBinaryBrackets);
-            let controlReg = findTheFirstSkobenchik(almostComplete);
+            let almostComplete = delLastBracket(regExpWoutBinaryBrackets);
+            let controlReg = delFirstBracket(almostComplete);
             console.log(controlReg);
-            console.log(controlReg.match(/(!?[A-Z])(.+!?[A-Z])+\)\|?/g));
-            if (controlReg.match(/\((!?[A-Z])(.+!?[A-Z])+\)\|?/g) == controlReg){
-                if (controlReg.match(/(!?[A-Z])((->|\|)!?[A-Z])+/g)) {
-                    console.log("Wrong binary operation in brackets");
-                    return -1;
-                }else console.log("Expression is alright")
+            console.log(controlReg.match(/\((!?[A-Z])(.+!?[A-Z])+\)\|?/g).join(""));
+            if (controlReg.match(/\((!?[A-Z])(.+!?[A-Z])+\)\|?/g).join("") == controlReg){
+                console.log("Expression is alright")
             }else{
                 console.log("Wrong expression");
                 return -1;
@@ -46,41 +51,41 @@ function startParse(regExp) {
     else{ console.log("Brackets number bad");
     return -1;}
 }
-
+//Снимаем скобки с операторов с уна
 function reverseSymbolReplace(match, p1, p2, p3) {
     newSymbol=match[1]+match[2];
     return newSymbol;
 }
 
-function findTheLastSkobenchik(regExp) {
+function delLastBracket(regExp) {
     if (regExp.match(/[A-Z]\)\)/g)!=null)
-      return findTheLastSkobenchik.call(this,regExp.replace(/[A-Z]\)\)/g, lastReplaceProtocol));
+      return delLastBracket.call(this,regExp.replace(/[A-Z]\)\)/g, delRightBrackets));
     else return regExp;
 }
 
-function lastReplaceProtocol(match, p1, p2) {
+function delRightBrackets(match, p1, p2) {
     let backToNormal = "";
     for(i=0;i<match.length-1;i++)
     backToNormal += match[i];
     return backToNormal;
 }
 
-function findTheFirstSkobenchik(regExp) {
-    if (regExp.match(/\(\([A-Z]/g)!=null)
-        return findTheFirstSkobenchik.call(this,regExp.replace(/\(\([A-Z]/g, firstReplaceProtocol));
+function delFirstBracket(regExp) {
+    if (regExp.match(/(\(!?[A-Z]\)|)?\(\(!?[A-Z]/g)!=null)
+        return delFirstBracket.call(this,regExp.replace(/(\(!?[A-Z]\)|)?\(\(!?[A-Z]/g, delLeftBrackets));
     else return regExp;
 }
 
-function firstReplaceProtocol(match, p1, p2) {
+function delLeftBrackets(match, p1, p2) {
     let backToNormal="";
     for(i=1;i<match.length;i++)
         backToNormal+=match[i];
     return backToNormal;
 }
 
-function deleteSkobenchikiInSkobenchiki(regExp) {
+function deleteBracketsInBrackets(regExp) {
     if (!regExp.match(/\(([A-Z]|![A-Z])(&[A-Z]|&![A-Z])+\)\|/g)) {
-        return deleteSkobenchikiInSkobenchiki.call(this,regExp.replace(/\(([A-Z]|![A-Z])(&[A-Z]|&![A-Z])+\)/g, binaryOperatorBracketsDel));
+        return deleteBracketsInBrackets.call(this,regExp.replace(/\(([A-Z]|![A-Z])(&[A-Z]|&![A-Z])+\)/g, binaryOperatorBracketsDel));
     }else return regExp;
 }
 
