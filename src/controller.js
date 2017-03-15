@@ -51,44 +51,44 @@ function startParse(regExp) {
     else{ console.log("Brackets number bad");
     return -1;}
 }
-//Снимаем скобки с операторов с уна
+//Снимаем скобки c операторов с унарной операцией
 function reverseSymbolReplace(match, p1, p2, p3) {
     newSymbol=match[1]+match[2];
     return newSymbol;
 }
-
+//Удаляем оставшиеся скобки справа
 function delLastBracket(regExp) {
-    if (regExp.match(/[A-Z]\)\)/g)!=null)
-      return delLastBracket.call(this,regExp.replace(/[A-Z]\)\)/g, delRightBrackets));
+    if (regExp.match(/!?[A-Z]\)\)/g)!=null)
+      return delLastBracket.call(this,regExp.replace(/!?[A-Z]\)\)/g, delRightBrackets));
     else return regExp;
 }
-
+//Удаляем скобки
 function delRightBrackets(match, p1, p2) {
     let backToNormal = "";
     for(i=0;i<match.length-1;i++)
     backToNormal += match[i];
     return backToNormal;
 }
-
+// Удаляем оставшиеся скобки слева
 function delFirstBracket(regExp) {
     if (regExp.match(/(\(!?[A-Z]\)|)?\(\(!?[A-Z]/g)!=null)
         return delFirstBracket.call(this,regExp.replace(/(\(!?[A-Z]\)|)?\(\(!?[A-Z]/g, delLeftBrackets));
     else return regExp;
 }
-
+//Удаляем скобки справа
 function delLeftBrackets(match, p1, p2) {
     let backToNormal="";
     for(i=1;i<match.length;i++)
         backToNormal+=match[i];
     return backToNormal;
 }
-
+//Снимаем скобки с бинарных операторов
 function deleteBracketsInBrackets(regExp) {
     if (!regExp.match(/\(([A-Z]|![A-Z])(&[A-Z]|&![A-Z])+\)\|/g)) {
         return deleteBracketsInBrackets.call(this,regExp.replace(/\(([A-Z]|![A-Z])(&[A-Z]|&![A-Z])+\)/g, binaryOperatorBracketsDel));
     }else return regExp;
 }
-
+//Снимаем скобки с бинарных операторов
 function binaryOperatorBracketsDel(match, p1, p2, p3) {
     newBinaryExpression="";
     for(i=1;i<match.length-1;i++)
