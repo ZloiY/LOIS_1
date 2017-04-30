@@ -2,9 +2,9 @@
  * (((X&Y)&(!Z))|((X&(!Y))&Z))
  * ((((X&(!Y))&Z)|(((!X)&(!Y))&Z))|((X&(!Y))&(!Z)))
  * (((X&(Y&(Z&W)))|(X&(Y&(Z&(!W)))))|(X&(Y&((!Z)&W))))
- * (((X&(Y&(Z&W)))|(X&(Y&(Z&(!W)))))|(X&(Y&((!Z)&W))))
  * (((X&(Y&(Z&W)))|((X&Y)&(Z&W)))|(X&(Y&((!Z)&W))))
  * (((X&(Y&(Z&W)))|((X&Y&(Z&(!W)))))|(X&(Y&((!Z)&W))))
+ * (((X&(Y&(Z&W)))|(X&(Y&(Z&(!W)))))|((X&((!Y)&(Z&W)))|(X&(Y&((!Z)&W)))))
 */
 
 /**
@@ -25,18 +25,18 @@ function startParse(someExpression) {
     }
     //Проверяем на чётность количества скобок
     if (allBrackets.length % 2 == 0) {
-        console.log("Brackets number good");
         //Проверяем на наличие дизъюнкции
         if (startExpression.match(/\)\|\(/g)) {
             console.log(startExpression);
             //Ищем унарные операции
             let expression = startExpression.replace(/\(![A-Z]\)/g, "1");
+            console.log(startExpression);
             //Ищем бинарные операции
             let finalExpression = disjunctiveReplace(conjunctionReplace(expression));
             if (finalExpression == "1") {
-               pcnfTree(startExpression);
+               return conjunctionCount(startExpression);
             } else {
-                console.log("Неправильное выражение")
+                console.log("Неправильное выражение");
                 return "Неправильное выражение";
             }
         }
@@ -46,8 +46,8 @@ function startParse(someExpression) {
         }
     }
     else {
-        console.log("Brackets number bad");
-        return "Brackets number bad";
+        console.log("Нечётное количество скобок");
+        return "Нечётное количество скобок";
     }
 }
 
@@ -76,20 +76,28 @@ function disjunctiveReplace(expression) {
 }
 
 /**
- * Проверяем на корректность коньюнкцию
+ * Проверяем на корректность коньюнкции
  * @param expression формула для проверки
  * @returns {string} результат
  */
-function pcnfTree(expression){
-    let disjunctiveOperationsNum = expression.split("|").length;
-    let modExpression = expression.substr(disjunctiveOperationsNum, expression.length);
-    console.log(modExpression);
-    let conjunctionOperationsArray = modExpression.split("|");
-    for(i=0; i<conjunctionOperationsArray.length; i++){
-        if (conjunctionOperationsArray[0].match(/(\(([A-Z]|(\(![A-Z]\)))(&[A-Z]|(\(&![A-Z]\)))\))+/g).length > 1) {
-            console.log("Выражение не верно");
-            return "Выражение не верно";
+function conjunctionCount(expression){
+    let conjunctionOperationsArray = expression.split("|");
+    console.log(conjunctionOperationsArray);
+    let repeatingArray = [];
+    for(let i=0; i<conjunctionOperationsArray.length; i++){
+        if (i==0)
+            repeatingArray = conjunctionOperationsArray[i].match(/([A-Z]|(![A-Z]))+/g);
+        else {
+            let equals = 0;
+            for (let j = 0; j < repeatingArray.length; j++) {
+                if (repeatingArray[j] == conjunctionOperationsArray[i].match(/([A-Z]|(![A-Z]))+/g)[j])
+                    equals++;
+                else equals--;
+            }
+            if (equals == repeatingArray.length) {
+                return "Выражение не верно"
+            }
         }
     }
-    return "Выражение верно"
+    return "Выражение верно";
 }
